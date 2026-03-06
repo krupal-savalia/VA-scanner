@@ -1,17 +1,12 @@
+# Core HTTP and Async
 aiohttp
+
+# HTML Parsing (optional - graceful fallback if not installed)
 beautifulsoup4
-requests
-scikit-learn
-numpy
-colorama
-selenium
-webdriver-manager
-pytest
-pytest-aiohttp
-joblib
-pyyaml
-networkx
-markdown
+
+# JavaScript-enabled crawling (optional)
 playwright
-pyjwt
+
+# Progress bars (optional - scanner works without it)
 tqdm
+
