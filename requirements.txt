@@ -1,0 +1,17 @@
+aiohttp
+beautifulsoup4
+requests
+scikit-learn
+numpy
+colorama
+selenium
+webdriver-manager
+pytest
+pytest-aiohttp
+joblib
+pyyaml
+networkx
+markdown
+playwright
+pyjwt
+tqdm

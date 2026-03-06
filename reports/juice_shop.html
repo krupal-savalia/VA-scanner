@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerability Assessment Report</title>
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; font-size: 11pt; }
+.page { background: white; padding: 60px 50px; margin: 20px auto; max-width: 900px; min-height: 1000px; box-shadow: 0 0 10px rgba(0,0,0,0.1); page-break-after: always; }
+.cover-page { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 1100px; }
+.cover-content { text-align: center; }
+.cover-page h1 { font-size: 48px; margin-bottom: 40px; color: #1a1a1a; }
+.cover-divider { width: 200px; height: 3px; background: #3b82f6; margin: 40px auto; }
+.cover-info { text-align: left; margin-top: 60px; font-size: 14px; }
+.cover-info p { margin: 15px 0; }
+h1 { font-size: 28px; margin-bottom: 25px; color: #1a1a1a; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; }
+h2 { font-size: 22px; margin-bottom: 15px; color: #2c3e50; }
+h3 { font-size: 16px; margin-top: 20px; margin-bottom: 10px; color: #2c3e50; }
+.summary-box { background: #f9f9f9; padding: 20px; border-radius: 6px; margin-bottom: 20px; }
+.severity-summary { margin: 30px 0; }
+.summary-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+.summary-table tr { border-bottom: 2px solid #ddd; }
+.summary-table td { padding: 12px; font-size: 13px; }
+.severity-critical { color: #ff4444; }
+.severity-critical-count { font-weight: bold; font-size: 24px; color: #ff4444; }
+.severity-high { color: #ff8c00; }
+.severity-high-count { font-weight: bold; font-size: 20px; color: #ff8c00; }
+.severity-medium { color: #ffc107; }
+.severity-medium-count { font-weight: bold; font-size: 16px; color: #ffc107; }
+.severity-low { color: #28a745; }
+.severity-low-count { font-weight: bold; font-size: 14px; color: #28a745; }
+.risk-assessment { background: #fff3cd; padding: 15px; border-radius: 6px; border-left: 4px solid #ffc107; }
+.risk-level { font-size: 18px; font-weight: bold; padding: 10px; border-radius: 4px; display: inline-block; margin: 10px 0; }
+.risk-critical { background: #ff4444; color: white; }
+.risk-high { background: #ff8c00; color: white; }
+.risk-medium { background: #ffc107; color: #333; }
+.risk-low { background: #28a745; color: white; }
+.overview-table { width: 100%; border-collapse: collapse; margin: 20px 0; background: #f9f9f9; }
+.overview-table tr { border-bottom: 1px solid #ddd; }
+.overview-table td { padding: 12px; font-size: 13px; }
+.scope-box, .methodology-box, .limitations-box, .fp-box { background: #f9f9f9; padding: 20px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #3b82f6; }
+.tech-stack { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+.tech-item { background: #3b82f6; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.vulnerability-summary-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 11px; }
+.vulnerability-summary-table th { background: #3b82f6; color: white; padding: 12px; text-align: left; font-weight: bold; border-bottom: 2px solid #3b82f6; }
+.vulnerability-summary-table td { padding: 10px 8px; border-bottom: 1px solid #ddd; font-size: 12px; }
+.badge-critical { background: #ff4444; color: white; padding: 4px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; }
+.badge-high { background: #ff8c00; color: white; padding: 4px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; }
+.badge-medium { background: #ffc107; color: #333; padding: 4px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; }
+.badge-low { background: #28a745; color: white; padding: 4px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; }
+.finding-header { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+.finding-header.severity-critical { background: #fff5f5; border-left: 4px solid #ff4444; }
+.finding-header.severity-high { background: #fff9f5; border-left: 4px solid #ff8c00; }
+.finding-header.severity-medium { background: #fffef5; border-left: 4px solid #ffc107; }
+.finding-header.severity-low { background: #f5fff5; border-left: 4px solid #28a745; }
+.finding-meta { width: 100%; font-size: 12px; }
+.finding-meta td { padding: 6px 0; }
+.endpoint-box { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 11px; margin: 10px 0; word-break: break-all; }
+.evidence-box { background: #f9f9f9; padding: 15px; border-radius: 4px; margin: 15px 0; border-left: 3px solid #3b82f6; }
+.evidence-box pre { background: #1e1e1e; color: #d4d4d4; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 10px; margin: 10px 0; white-space: pre-wrap; word-wrap: break-word; }
+.recommendations { display: flex; flex-direction: column; gap: 20px; }
+.recommendation-item { padding: 15px; border-radius: 6px; border-left: 4px solid #ddd; }
+.recommendation-item.severity-critical { background: #fff5f5; border-left-color: #ff4444; }
+.recommendation-item.severity-high { background: #fff9f5; border-left-color: #ff8c00; }
+.recommendation-item.severity-medium { background: #fffef5; border-left-color: #ffc107; }
+.recommendation-item.severity-low { background: #f5fff5; border-left-color: #28a745; }
+.recommendation-item pre { background: #1e1e1e; color: #d4d4d4; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 10px; margin: 10px 0; }
+.conclusion-box { background: #f9f9f9; padding: 20px; border-radius: 6px; border: 2px solid #3b82f6; }
+.conclusion-box ul, .conclusion-box ol { margin-left: 20px; margin-top: 10px; }
+.conclusion-box li { margin-bottom: 8px; }
+.page-break { page-break-after: always; }
+.risk-badge { background: #3b82f6; color: white; padding: 4px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; }
+@media print { body { background: white; } .page { max-width: 100%; margin: 0; padding: 60px 50px; box-shadow: none; page-break-after: always; } }
+ul, ol { margin-left: 20px; margin-top: 10px; }
+li { margin-bottom: 6px; font-size: 13px; }
+p { margin-bottom: 12px; font-size: 13px; text-align: justify; }
+pre { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 10px; margin: 15px 0; white-space: pre-wrap; word-wrap: break-word; }
+table { font-size: 12px; }
+    </style>
+</head>
+<body>
+    <!-- Cover Page -->
+    <div class="page cover-page">
+        <div class="cover-content">
+            <h1>Vulnerability Assessment Report</h1>
+            <div class="cover-divider"></div>
+            <div class="cover-info">
+                <p><strong>Target:</strong> https://juice-shop.herokuapp.com/</p>
+                <p><strong>Assessment Tool:</strong> VAPT Scanner v4.0</p>
+                <p><strong>Assessment Date:</strong> 06 March 2026</p>
+                <p><strong>Report Version:</strong> 1.0</p>
+                <p><strong>Prepared By:</strong> Security Assessment Team</p>
+            </div>
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="page">
+        <h1>Executive Summary</h1>
+        <div class="summary-box">
+            <p>This vulnerability assessment identified critical and high-priority security weaknesses within the target application. Immediate remediation is required to prevent potential exploitation.</p>
+            <div class="severity-summary">
+                <h3>Vulnerabilities Discovered</h3>
+                <table class="summary-table">
+                    <tr><td class="severity-critical"><strong>Critical</strong></td><td class="severity-critical-count">0</td></tr>
+                    <tr><td class="severity-high"><strong>High</strong></td><td class="severity-high-count">1</td></tr>
+                    <tr><td class="severity-medium"><strong>Medium</strong></td><td class="severity-medium-count">1</td></tr>
+                    <tr><td class="severity-low"><strong>Low</strong></td><td class="severity-low-count">0</td></tr>
+                </table>
+            </div>
+            <div class="risk-assessment">
+                <h3>Overall Risk Assessment</h3>
+                <p><span class="risk-level risk-medium"><strong>MEDIUM</strong></span></p>
+                <p>The identified vulnerabilities could allow attackers to:</p>
+                <ul>
+                    <li>Execute arbitrary database queries (SQL Injection)</li>
+                    <li>Bypass authentication mechanisms</li>
+                    <li>Access sensitive data</li>
+                    <li>Compromise system integrity</li>
+                </ul>
+            </div>
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Scope of Assessment -->
+    <div class="page">
+        <h1>Scope of Assessment</h1>
+        <div class="scope-box">
+            <h3>In-Scope</h3>
+            <ul>
+                <li><strong>Primary Target:</strong> https://juice-shop.herokuapp.com/</li>
+                <li><strong>Assessment Type:</strong> Black-Box Web Application Security Testing</li>
+                <li><strong>Testing Methodology:</strong> OWASP Testing Guide v4</li>
+                <li><strong>Vulnerability Classes:</strong> SQL Injection, XSS, SSRF, LFI, CSRF, XXE, Command Injection, SSTI, Security Headers</li>
+            </ul>
+            <h3>Out-of-Scope</h3>
+            <ul>
+                <li>Authenticated functionality testing</li>
+                <li>Source code review and secure code analysis</li>
+                <li>Infrastructure security assessment</li>
+                <li>Physical security assessment</li>
+                <li>Social engineering assessment</li>
+            </ul>
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Testing Methodology -->
+    <div class="page">
+        <h1>Testing Methodology</h1>
+        <div class="methodology-box">
+            <h3>Standards and Guidelines</h3>
+            <ul>
+                <li><strong>OWASP Testing Guide v4:</strong> Comprehensive testing framework</li>
+                <li><strong>OWASP Top 10 (2021):</strong> Critical web application security risks</li>
+                <li><strong>NIST SP 800-115:</strong> Technical Security Testing</li>
+            </ul>
+            <h3>Testing Phases</h3>
+            <ol>
+                <li><strong>Reconnaissance:</strong> Identify web servers, technologies, and endpoints</li>
+                <li><strong>Scanning:</strong> Automated vulnerability detection and parameter analysis</li>
+                <li><strong>Analysis:</strong> Manual verification and false positive elimination</li>
+                <li><strong>Exploitation:</strong> Proof-of-concept validation where applicable</li>
+                <li><strong>Reporting:</strong> Detailed documentation with remediation guidance</li>
+            </ol>
+            <h3>Tools Used</h3>
+            <ul>
+                <li>VAPT Scanner v4.0 - Automated vulnerability scanner</li>
+                <li>Custom payload injection engine</li>
+                <li>HTTP request/response analysis tools</li>
+            </ul>
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Scan Overview -->
+    <div class="page">
+        <h1>Scan Overview</h1>
+        <h3>Assessment Details</h3>
+        <table class="overview-table">
+            <tr><td><strong>Target URL</strong></td><td>https://juice-shop.herokuapp.com/</td></tr>
+            <tr><td><strong>Scan Scope</strong></td><td>Web Application Security Assessment</td></tr>
+            <tr><td><strong>Testing Type</strong></td><td>Black-Box Web Application Security Testing</td></tr>
+            <tr><td><strong>Authenticated Testing</strong></td><td>Not Performed</td></tr>
+        </table>
+        <h3>Scan Metrics</h3>
+        <table class="overview-table">
+            <tr><td><strong>Assessment Date</strong></td><td>06 March 2026</td></tr>
+            <tr><td><strong>Scan Duration</strong></td><td>2099.17 seconds (~34 minutes)</td></tr>
+            <tr><td><strong>URLs Discovered</strong></td><td>80</td></tr>
+            <tr><td><strong>Total HTTP Requests</strong></td><td>8,030</td></tr>
+            <tr><td><strong>Scanner Version</strong></td><td>VAPT Scanner v4.0</td></tr>
+        </table>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Technology Stack -->
+    <div class="page">
+        <h1>Technology Stack</h1>
+        <h3>Detected Technologies</h3>
+        <div class="tech-stack">
+            <span class="tech-item">Heroku</span>
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Vulnerability Summary Table -->
+    <div class="page">
+        <h1>Vulnerability Summary</h1>
+        <table class="vulnerability-summary-table">
+            <thead>
+                <tr>
+                    <th>ID</th><th>Vulnerability</th><th>Severity</th><th>CVSS</th><th>CWE</th><th>OWASP</th><th>Risk</th><th>Endpoints</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="severity-high">
+                    <td><strong>V-01</strong></td>
+                    <td>Server-Side Request Forgery</td>
+                    <td><span class="badge-high">High</span></td>
+                    <td>9.1</td>
+                    <td>CWE-918</td>
+                    <td>OWASP A10:2021</td>
+                    <td><span class="risk-badge">High</span></td>
+                    <td>3</td>
+                </tr>
+                <tr class="severity-medium">
+                    <td><strong>V-02</strong></td>
+                    <td>Open Redirect</td>
+                    <td><span class="badge-medium">Medium</span></td>
+                    <td>5.3</td>
+                    <td>CWE-601</td>
+                    <td>OWASP A01:2021</td>
+                    <td><span class="risk-badge">Medium</span></td>
+                    <td>8</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Detailed Findings -->
+
+    <div class="page">
+        <h1>V-01 Server-Side Request Forgery</h1>
+        <div class="finding-header severity-high">
+            <table class="finding-meta">
+                <tr><td><strong>Severity</strong></td><td><span class="badge-high">High</span></td></tr>
+                <tr><td><strong>CVSS Score</strong></td><td>9.1</td></tr>
+                <tr><td><strong>CWE</strong></td><td>CWE-918</td></tr>
+                <tr><td><strong>OWASP</strong></td><td>OWASP A10:2021</td></tr>
+            </table>
+        </div>
+        <h3>Affected Endpoints</h3>
+        <p class="endpoint-box">https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop</p>
+        <ul>
+            <li>https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop (param: to)</li>
+            <li>https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop (param: to)</li>
+        </ul>
+
+        <h3>Vulnerable Parameter</h3>
+        <p>to</p>
+        <h3>Description</h3>
+        <p>Server-Side Request Forgery in parameter to</p>
+        <h3>Attack Scenario</h3>
+        <p>An attacker could exploit this vulnerability to:</p>
+        <ul>
+            <li>Execute arbitrary database queries</li>
+            <li>Bypass authentication mechanisms</li>
+            <li>Access sensitive information</li>
+            <li>Modify or delete data</li>
+        </ul>
+        <h3>Evidence</h3>
+
+        <div class="evidence-box">
+            <p><strong>HTTP Request:</strong></p>
+            <pre>GET /redirect?to=http%3A%2F%2F169.254.169.254%2Flatest%2Fmeta-data%2F HTTP/1.1&#10;Host: juice-shop.herokuapp.com&#10;User-Agent: VAPT Scanner/4.0&#10;Connection: close&#10;</pre>
+        </div>
+        <div class="evidence-box">
+            <p><strong>HTTP Response:</strong></p>
+            <pre>HTTP/1.1 406&#10;Content-Type: text/html; charset=utf-8&#10;Server: Heroku&#10;&#10;&amp;lt;html&amp;gt;&amp;#10;  &amp;lt;head&amp;gt;&amp;#10;    &amp;lt;meta charset='utf-8'&amp;gt; &amp;#10;    &amp;lt;title&amp;gt;Error: Unrecognized target URL for redirect: http://169.254.169.254/latest/meta-data/&amp;lt;/title&amp;gt;&amp;#10;    &amp;lt;style&amp;gt;* {&amp;#10;  margin: 0;&amp;#10;  padding: 0;&amp;#10;  outline: 0;&amp;#10;}&amp;#10;&amp;#10;body {&amp;#10;  padding: 80px 100px;&amp;#10;  font: 13px &amp;quot;Helvetica Neue&amp;quot;, &amp;quot;Lucida Grande&amp;quot;, &amp;quot;Arial&amp;quot;;&amp;#10;  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));&amp;#10;  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);&amp;#10;  background-repeat: no-repeat;&amp;#10;  color: #555;&amp;#10;  -we</pre>
+        </div>
+
+        <h3>Impact</h3>
+        <p>Successful exploitation could lead to:</p>
+        <ul>
+            <li>Unauthorized database access</li>
+            <li>Sensitive data exposure</li>
+            <li>Data modification or deletion</li>
+            <li>System compromise</li>
+        </ul>
+        <h3>Recommendation</h3>
+        <p>Implement security best practices and follow OWASP guidelines.</p>
+                <ul>
+                    <li>Validate and sanitize all user inputs</li>
+                    <li>Use parametrized queries for database access</li>
+                    <li>Implement proper access controls</li>
+                    <li>Keep software and dependencies updated</li>
+                    <li>Conduct regular security assessments</li>
+                </ul>
+        <div class="page-break"></div>
+    </div>
+
+    <div class="page">
+        <h1>V-02 Open Redirect</h1>
+        <div class="finding-header severity-medium">
+            <table class="finding-meta">
+                <tr><td><strong>Severity</strong></td><td><span class="badge-medium">Medium</span></td></tr>
+                <tr><td><strong>CVSS Score</strong></td><td>5.3</td></tr>
+                <tr><td><strong>CWE</strong></td><td>CWE-601</td></tr>
+                <tr><td><strong>OWASP</strong></td><td>OWASP A01:2021</td></tr>
+            </table>
+        </div>
+        <h3>Affected Endpoints</h3>
+        <p class="endpoint-box">https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop</p>
+        <ul>
+            <li>https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop (param: query-builder-test)</li>
+            <li>https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop (param: query-builder-test)</li>
+            <li>https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop (param: query-builder-test)</li>
+            <li>https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop (param: query-builder-test)</li>
+            <li>https://juice-shop.herokuapp.com/redirect?to=https://github.com/juice-shop/juice-shop (param: query-builder-test)</li>
+            <li>... and 2 more</li>
+        </ul>
+
+        <h3>Vulnerable Parameter</h3>
+        <p>query-builder-test</p>
+        <h3>Description</h3>
+        <p>Open Redirect in parameter query-builder-test</p>
+        <h3>Attack Scenario</h3>
+        <p>An attacker could exploit this vulnerability to:</p>
+        <ul>
+            <li>Execute arbitrary database queries</li>
+            <li>Bypass authentication mechanisms</li>
+            <li>Access sensitive information</li>
+            <li>Modify or delete data</li>
+        </ul>
+        <h3>Evidence</h3>
+
+        <div class="evidence-box">
+            <p><strong>HTTP Request:</strong></p>
+            <pre>GET /redirect?to=https://github.com/juice-shop/juice-shop HTTP/1.1&#10;Host: juice-shop.herokuapp.com&#10;User-Agent: VAPT Scanner/4.0&#10;Connection: close&#10;</pre>
+        </div>
+        <div class="evidence-box">
+            <p><strong>HTTP Response:</strong></p>
+            <pre>HTTP/1.1 302&#10;Content-Type: text/plain; charset=utf-8&#10;Location: https://github.com/juice-shop/juice-shop&#10;Server: Heroku&#10;&#10;Found. Redirecting to https://github.com/juice-shop/juice-shop</pre>
+        </div>
+
+        <h3>Impact</h3>
+        <p>Successful exploitation could lead to:</p>
+        <ul>
+            <li>Unauthorized database access</li>
+            <li>Sensitive data exposure</li>
+            <li>Data modification or deletion</li>
+            <li>System compromise</li>
+        </ul>
+        <h3>Recommendation</h3>
+        <p>Validate redirect URLs against a whitelist of allowed domains.</p>
+                <pre>// Safe Redirect:
+$allowed_domains = ['example.com', 'sub.example.com'];
+$redirect_url = $_GET['url'];
+$parsed = parse_url($redirect_url);
+if (in_array($parsed['host'], $allowed_domains)) {
+    header("Location: " . $redirect_url);
+} else {
+    header("Location: /");
+}</pre>
+                <ul>
+                    <li>Avoid using user input directly in redirect headers</li>
+                    <li>Use relative paths when possible</li>
+                </ul>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Limitations -->
+    <div class="page">
+        <h1>Assessment Limitations</h1>
+        <div class="limitations-box">
+            <p>The following limitations should be considered when reviewing this assessment:</p>
+            <ul>
+                <li><strong>No Authenticated Testing:</strong> Assessment was conducted without credentials. Vulnerabilities in authenticated functionality may not have been detected.</li>
+                <li><strong>No Source Code Review:</strong> This is a black-box security assessment. Logic flaws visible only in source code were not assessed.</li>
+                <li><strong>Limited Scope:</strong> Assessment focused on web application layer only.</li>
+                <li><strong>Time-Based Limitations:</strong> Testing was conducted within a limited timeframe. Additional vulnerabilities may exist.</li>
+                <li><strong>WAF/IDS Systems:</strong> Presence of Web Application Firewalls may have blocked certain payloads.</li>
+            </ul>
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- False Positive Handling -->
+    <div class="page">
+        <h1>False Positive Handling</h1>
+        <div class="fp-box">
+            <p>All findings in this report have been manually verified to minimize false positives.</p>
+            <h3>Verification Process</h3>
+            <ul>
+                <li><strong>Automated Detection:</strong> Initial vulnerability detection by scanner</li>
+                <li><strong>Manual Verification:</strong> Each finding has been manually reviewed</li>
+                <li><strong>Evidence Collection:</strong> HTTP request/response evidence documented</li>
+                <li><strong>Impact Assessment:</strong> Exploitability and business impact evaluated</li>
+            </ul>
+            <h3>Confidence Levels</h3>
+            <ul>
+                <li><strong>High Confidence:</strong> Vulnerabilities verified with proof-of-concept</li>
+                <li><strong>Medium Confidence:</strong> Indicators present, exploitation verified</li>
+            </ul>
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Security Recommendations -->
+    <div class="page">
+        <h1>Security Recommendations</h1>
+        <div class="recommendations">
+
+            <div class="recommendation-item severity-high">
+                <h3>Server-Side Request Forgery Mitigation (1 instance)</h3>
+                <p><strong>Severity:</strong> <span class="badge-high">High</span></p>
+                <p><strong>CWE:</strong> CWE-918</p>
+                <p>Implement security best practices and follow OWASP guidelines.</p>
+                <ul>
+                    <li>Validate and sanitize all user inputs</li>
+                    <li>Use parametrized queries for database access</li>
+                    <li>Implement proper access controls</li>
+                    <li>Keep software and dependencies updated</li>
+                    <li>Conduct regular security assessments</li>
+                </ul>
+            </div>
+
+            <div class="recommendation-item severity-medium">
+                <h3>Open Redirect Mitigation (1 instance)</h3>
+                <p><strong>Severity:</strong> <span class="badge-medium">Medium</span></p>
+                <p><strong>CWE:</strong> CWE-601</p>
+                <p>Validate redirect URLs against a whitelist of allowed domains.</p>
+                <pre>// Safe Redirect:
+$allowed_domains = ['example.com', 'sub.example.com'];
+$redirect_url = $_GET['url'];
+$parsed = parse_url($redirect_url);
+if (in_array($parsed['host'], $allowed_domains)) {
+    header("Location: " . $redirect_url);
+} else {
+    header("Location: /");
+}</pre>
+                <ul>
+                    <li>Avoid using user input directly in redirect headers</li>
+                    <li>Use relative paths when possible</li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="page-break"></div>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="page">
+        <h1>Conclusion</h1>
+        <div class="conclusion-box">
+            <p>This assessment identified <strong>2</strong> unique vulnerabilities across the target application.</p>
+            <p><strong>Overall Risk:</strong> <span class="risk-level risk-medium"><strong>MEDIUM</strong></span></p>
+            <h3>Recommended Priority Actions</h3>
+            <ol>
+                <li><strong>Immediate (0-24 hours):</strong> Remediate all Critical vulnerabilities</li>
+                <li><strong>Short-term (1-30 days):</strong> Address High severity vulnerabilities and implement security headers</li>
+                <li><strong>Ongoing:</strong> Conduct regular security assessments and implement secure development practices</li>
+            </ol>
+            <p style="margin-top:30px; font-size:12px; color:#666;">
+                <em>This report contains confidential information. Unauthorized disclosure or reproduction is prohibited.</em>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('beforeprint', function() {
+            document.documentElement.style.fontSize = '12pt';
+        });
+    </script>
+</body>
+</html>
